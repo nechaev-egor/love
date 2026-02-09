@@ -46,7 +46,7 @@ export default function ValentineForm({
         {heartReady && (
           <>
             <p className="text-2xl font-medium text-rose-600 dark:text-rose-400">
-              Ура! Я так рад! 💕
+              Ура! 💕
             </p>
             <p className="text-lg text-zinc-600 dark:text-zinc-400">
               Ты лучшая валентинка!
@@ -60,7 +60,7 @@ export default function ValentineForm({
         </div>
         {heartReady && (
           <p className="text-sm text-zinc-500 dark:text-zinc-500">
-            Наши моменты собираются в одно сердце
+            Наши моменты вместе
           </p>
         )}
       </div>
@@ -70,7 +70,7 @@ export default function ValentineForm({
   return (
     <div className="flex flex-col items-center gap-8">
       <p className="text-center text-xl font-medium text-zinc-800 dark:text-zinc-200 sm:text-2xl">
-        Настя, ты будешь моей валентинкой?
+        Настюшка, ты будешь моей валентинкой?
       </p>
       <div className="relative flex flex-wrap items-center justify-center gap-4">
         <button
