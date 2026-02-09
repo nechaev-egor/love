@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 💕 Valentine — Interactive Valentine Card
+
+A Next.js mini-app: the question "Will you be my Valentine?" and photos assembling into a heart shape (WebGL).
+
+## Features
+
+- Form with question and "Yes" / "No" buttons (the "No" button runs away from the cursor)
+- After "Yes" — animation: photos assemble along the heart outline (WebGL)
+- Photos load from `public/photos` folder via `manifest.json` list
+- Photo aspect ratios preserved on cards
+- **Desktop:** hover — card scales up; click — photo opens in overlay
+- **Mobile:** tap card — enlarged photo; close button to dismiss
+- Desktop: heart on background; mobile: heart inside the card
+
+## Requirements
+
+- Node.js 18+
+- npm / yarn / pnpm
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+# Install dependencies
+npm install
+
+# Development mode
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Adding Photos
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Put photos (JPG, PNG, WebP) in **`public/photos/`**.
+2. Edit **`public/photos/manifest.json`** — array of file names in order:
 
-## Learn More
+```json
+["1.jpeg", "2.jpeg", "photo.png"]
+```
 
-To learn more about Next.js, take a look at the following resources:
+3. Number of cards in the heart = number of loaded photos. If `manifest.json` is empty, colored placeholders are shown.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+See `public/photos/README.md` for more details.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Build & Production
+
+```bash
+npm run build
+npm run start
+```
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Push the repository to GitHub.
+2. [vercel.com](https://vercel.com) → **Add New** → **Project** → import repository.
+3. **Deploy** (Vercel auto-detects Next.js).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Via CLI: `npm i -g vercel` → run `vercel` in the project folder.
+
+## Stack
+
+- [Next.js](https://nextjs.org) (App Router, SSR)
+- React 19
+- TypeScript
+- Tailwind CSS
+- WebGL (heart cards)
+
+## License
+
+MIT
+
+---
+
+© Valentine. Все права защищены.
