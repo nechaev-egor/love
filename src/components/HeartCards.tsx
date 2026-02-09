@@ -3,37 +3,12 @@
 import { useRef, useEffect, useCallback, useState } from "react";
 import { createPortal } from "react-dom";
 
+import { loadPhotos } from "@/lib/photos";
+
 const CARD_SIZE = 0.22;
 const DURATION_MS = 2200;
 const HEART_SCALE = 0.9;
 const MAX_CARDS = 100;
-const PHOTOS_PATH = "/photos";
-
-async function loadPhotos(): Promise<HTMLImageElement[]> {
-  try {
-    const res = await fetch(`${PHOTOS_PATH}/manifest.json`);
-    const names: string[] = await res.json();
-    if (!names?.length) return [];
-    const images: HTMLImageElement[] = [];
-    for (const name of names) {
-      try {
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        await new Promise<void>((resolve, reject) => {
-          img.onload = () => resolve();
-          img.onerror = () => reject(new Error(`Failed to load ${name}`));
-          img.src = `${PHOTOS_PATH}/${name}`;
-        });
-        images.push(img);
-      } catch {
-        // skip failed image
-      }
-    }
-    return images;
-  } catch {
-    return [];
-  }
-}
 
 function getHeartPoints(count: number): { x: number; y: number }[] {
   const points: { x: number; y: number }[] = [];
@@ -59,16 +34,16 @@ function easeOutCubic(t: number): number {
 
 type HeartCardsProps = {
   fullScreen?: boolean;
+  onReady?: () => void;
 };
 
 const HOVER_SCALE = 1.25;
 const HOVER_THRESHOLD = 0.2;
 
-export default function HeartCards({ fullScreen }: HeartCardsProps) {
+export default function HeartCards({ fullScreen, onReady }: HeartCardsProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [webglError, setWebglError] = useState(false);
   const [enlargedCard, setEnlargedCard] = useState<{ src: string } | null>(null);
-
   const initWebGL = useCallback(
     (gl: WebGLRenderingContext, images: HTMLImageElement[]) => {
       const vsSource = `attribute vec2 a_center;
@@ -240,6 +215,7 @@ void main() {
       cleanup = runAnimation(gl, setup, canvas, {
         imageSrcs,
         onCardTap: (src) => setEnlargedCard({ src }),
+        onFirstFrame: () => onReady?.(),
       });
     };
 
@@ -247,9 +223,13 @@ void main() {
       gl: WebGLRenderingContext,
       setup: NonNullable<ReturnType<typeof initWebGL>>,
       canvas: HTMLCanvasElement,
-      opts: { imageSrcs: string[]; onCardTap: (src: string) => void }
+      opts: {
+        imageSrcs: string[];
+        onCardTap: (src: string) => void;
+        onFirstFrame?: () => void;
+      }
     ) => {
-    const { imageSrcs, onCardTap } = opts;
+    const { imageSrcs, onCardTap, onFirstFrame } = opts;
 
     const {
       a_center,
@@ -301,7 +281,10 @@ void main() {
     }
 
     function render(now: number) {
-      if (startTime === null) startTime = now;
+      if (startTime === null) {
+        startTime = now;
+        onFirstFrame?.();
+      }
       const elapsed = now - startTime;
       const t = Math.min(elapsed / DURATION_MS, 1);
       const eased = easeOutCubic(t);
@@ -429,13 +412,11 @@ void main() {
       return cleanup;
     };
 
-    const t = requestAnimationFrame(() => {
-      requestAnimationFrame(init);
-    });
+    const rafIdInit = requestAnimationFrame(init);
 
     return () => {
       cancelled = true;
-      cancelAnimationFrame(t);
+      cancelAnimationFrame(rafIdInit);
       cleanup?.();
     };
   }, [initWebGL]);

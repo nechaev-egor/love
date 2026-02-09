@@ -6,9 +6,16 @@ import HeartCards from "./HeartCards";
 type Props = {
   answer: "yes" | "no" | null;
   onAnswerChange: (answer: "yes" | "no" | null) => void;
+  heartReady?: boolean;
+  onHeartReady?: () => void;
 };
 
-export default function ValentineForm({ answer, onAnswerChange }: Props) {
+export default function ValentineForm({
+  answer,
+  onAnswerChange,
+  heartReady = false,
+  onHeartReady,
+}: Props) {
   const [noPosition, setNoPosition] = useState({ x: 0, y: 0 });
   const [noHoverCount, setNoHoverCount] = useState(0);
 
@@ -26,20 +33,36 @@ export default function ValentineForm({ answer, onAnswerChange }: Props) {
 
   if (answer === "yes") {
     return (
-      <div className="flex flex-col items-center gap-6 text-center transition-opacity duration-500">
-        <p className="text-2xl font-medium text-rose-600 dark:text-rose-400">
-          Ура! Я так рад! 💕
-        </p>
-        <p className="text-lg text-zinc-600 dark:text-zinc-400">
-          Ты лучшая валентинка!
-        </p>
-        {/* Mobile: WebGL in card */}
-        <div className="h-[320px] w-full overflow-hidden rounded-2xl bg-zinc-200/50 dark:bg-zinc-800/50 md:hidden">
-          <HeartCards />
+      <div className="relative flex flex-col items-center gap-6 text-center transition-opacity duration-500">
+        {!heartReady && (
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-2xl bg-white/95 dark:bg-zinc-900/95">
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-rose-300 border-t-rose-600 dark:border-rose-600 dark:border-t-rose-400" />
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              Подождите немного…
+            </p>
+            <span className="text-2xl animate-pulse">💕</span>
+          </div>
+        )}
+        {heartReady && (
+          <>
+            <p className="text-2xl font-medium text-rose-600 dark:text-rose-400">
+              Ура! Я так рад! 💕
+            </p>
+            <p className="text-lg text-zinc-600 dark:text-zinc-400">
+              Ты лучшая валентинка!
+            </p>
+          </>
+        )}
+        <div className="relative h-[320px] w-full md:hidden">
+          <div className="h-full w-full overflow-hidden rounded-2xl bg-zinc-200/50 dark:bg-zinc-800/50">
+            <HeartCards onReady={onHeartReady} />
+          </div>
         </div>
-        <p className="text-sm text-zinc-500 dark:text-zinc-500">
-          Наши моменты собираются в одно сердце
-        </p>
+        {heartReady && (
+          <p className="text-sm text-zinc-500 dark:text-zinc-500">
+            Наши моменты собираются в одно сердце
+          </p>
+        )}
       </div>
     );
   }
