@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import ValentineForm from "@/components/ValentineForm";
 import HeartCards from "@/components/HeartCards";
+import FloatingHearts from "@/components/FloatingHearts";
 import { loadPhotos } from "@/lib/photos";
 
 export default function Home() {
@@ -19,6 +20,7 @@ export default function Home() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-rose-50 to-pink-100 font-sans dark:from-zinc-900 dark:to-zinc-800">
+      <FloatingHearts />
       {/* Desktop: WebGL in background */}
       {answer === "yes" && (
         <div className="fixed inset-0 z-0 hidden md:block">

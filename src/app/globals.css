@@ -25,3 +25,27 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+.floating-heart {
+  transform-origin: 50% 50%;
+  animation: floatHeart 5s linear forwards;
+}
+
+@keyframes floatHeart {
+  0% {
+    transform: scale(0) translate(0, 0);
+    opacity: 0;
+  }
+  6% {
+    transform: scale(var(--heart-scale, 0.4)) translate(0, 0);
+    opacity: 0.85;
+  }
+  92% {
+    transform: scale(var(--heart-scale, 0.4)) translate(var(--heart-dx, 80px), var(--heart-dy, 80px));
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(var(--heart-scale, 0.4)) translate(var(--heart-dx, 80px), var(--heart-dy, 80px));
+    opacity: 0;
+  }
+}
+
