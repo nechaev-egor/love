@@ -44,6 +44,19 @@ export default function HeartCards({ fullScreen, onReady }: HeartCardsProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [webglError, setWebglError] = useState(false);
   const [enlargedCard, setEnlargedCard] = useState<{ src: string } | null>(null);
+  const overlayOpenedAt = useRef<number>(0);
+
+  useEffect(() => {
+    if (!enlargedCard) {
+      overlayOpenedAt.current = 0;
+      return;
+    }
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [enlargedCard]);
   const initWebGL = useCallback(
     (gl: WebGLRenderingContext, images: HTMLImageElement[]) => {
       const vsSource = `attribute vec2 a_center;
@@ -355,8 +368,14 @@ void main() {
     };
 
     let touchStartHit = -1;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    const TAP_MOVE_THRESHOLD = 15;
+
     const onPointerDown = (e: PointerEvent) => {
       if (e.pointerType === "touch") {
+        touchStartX = e.clientX;
+        touchStartY = e.clientY;
         const ndc = clientToNdc(e.clientX, e.clientY);
         touchStartHit = hitTest(ndc);
       }
@@ -365,9 +384,9 @@ void main() {
     const onPointerUp = (e: PointerEvent) => {
       if (e.pointerType === "touch") {
         if (touchStartHit >= 0 && imageSrcs[touchStartHit]) {
-          const ndc = clientToNdc(e.clientX, e.clientY);
-          const hit = hitTest(ndc);
-          if (hit === touchStartHit) {
+          const dx = e.clientX - touchStartX;
+          const dy = e.clientY - touchStartY;
+          if (Math.sqrt(dx * dx + dy * dy) < TAP_MOVE_THRESHOLD) {
             onCardTap(imageSrcs[touchStartHit]);
           }
         }
@@ -437,11 +456,30 @@ void main() {
         style={{ width: "100%", height: fullScreen ? "100%" : "320px" }}
       />
       {enlargedCard &&
-        createPortal(
+        (() => {
+          if (!overlayOpenedAt.current) overlayOpenedAt.current = Date.now();
+          const openTime = overlayOpenedAt.current;
+          return createPortal(
           <div
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4"
-            onClick={() => setEnlargedCard(null)}
-            onKeyDown={(e) => e.key === "Escape" && setEnlargedCard(null)}
+            className="fixed inset-0 z-[9999] flex min-h-[100dvh] min-w-full items-center justify-center bg-black/90 p-4"
+            style={{
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              touchAction: "none",
+            }}
+            onClick={() => {
+              if (Date.now() - openTime < 450) return;
+              overlayOpenedAt.current = 0;
+              setEnlargedCard(null);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Escape" && Date.now() - openTime >= 450) {
+                overlayOpenedAt.current = 0;
+                setEnlargedCard(null);
+              }
+            }}
             role="button"
             tabIndex={0}
           >
@@ -449,9 +487,11 @@ void main() {
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
+                if (Date.now() - openTime < 450) return;
+                overlayOpenedAt.current = 0;
                 setEnlargedCard(null);
               }}
-              className="absolute right-4 top-4 flex h-12 w-12 items-center justify-center rounded-full bg-white/20 text-white transition hover:bg-white/30 md:hidden"
+              className="absolute right-4 top-4 z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/20 text-white transition hover:bg-white/30 md:hidden"
               aria-label="Close"
             >
               <svg
@@ -469,15 +509,18 @@ void main() {
                 <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
             </button>
-            <img
-              src={enlargedCard.src}
-              alt="Enlarged photo"
-              className="max-h-[90vh] max-w-[90vw] object-contain"
-              onClick={(e) => e.stopPropagation()}
-            />
+            <div className="flex min-h-0 flex-1 items-center justify-center">
+              <img
+                src={enlargedCard.src}
+                alt="Enlarged photo"
+                className="max-h-[85dvh] w-auto max-w-[90vw] object-contain"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
           </div>,
           document.body
-        )}
+          );
+        })()}
     </div>
   );
 }

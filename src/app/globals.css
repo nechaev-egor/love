@@ -49,3 +49,17 @@ body {
   }
 }
 
+/* Wrong answer flash for quiz - явное красное мигание */
+@keyframes wrongAnswerFlash {
+  0% { background-color: rgb(220 38 38 / 0.9); }
+  20% { background-color: rgb(220 38 38 / 0.7); }
+  40% { background-color: rgb(220 38 38 / 0.85); }
+  60% { background-color: rgb(220 38 38 / 0.6); }
+  80% { background-color: rgb(220 38 38 / 0.35); }
+  100% { background-color: transparent; }
+}
+
+.quiz-wrong-flash {
+  animation: wrongAnswerFlash 0.7s ease-in-out forwards;
+}
+

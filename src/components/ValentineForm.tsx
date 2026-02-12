@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import HeartCards from "./HeartCards";
+import HarryPotterQuiz from "./HarryPotterQuiz";
 
 type Props = {
   answer: "yes" | "no" | null;
@@ -59,9 +60,12 @@ export default function ValentineForm({
           </div>
         </div>
         {heartReady && (
-          <p className="text-sm text-zinc-500 dark:text-zinc-500">
-            Наши моменты вместе
-          </p>
+          <div className="mt-4 w-full border-t border-zinc-200 pt-4 dark:border-zinc-700">
+            <p className="mb-3 text-center text-lg font-medium text-zinc-800 dark:text-zinc-200">
+              Пройди игру и получи подарок 🪄
+            </p>
+            <HarryPotterQuiz />
+          </div>
         )}
       </div>
     );
